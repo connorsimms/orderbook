@@ -8,15 +8,27 @@
 #include "order.h"
 #include "level.h"
 #include "types.h"
+#include "trade.h"
 
 template <template <typename, typename> class LevelPolicy, typename OrderContainer> 
 class OrderBook
 {
 public:
+    std::vector<Trade> match(OrderId orderId, Side side, Price price, Size volume)
+    {
+        if (side == Side::Buy) { return askLevels_.match(orderId, side, price, volume); }
+        else { return bidLevels_.match(price, volume); }
+    }
+
+    bool canFullyFill(Side side, Price price, Size volume)
+    {
+        if (side == Side::Buy) { return askLevels_.hasEnough(price, volume); }
+        else { return bidLevels_.hasEnough(price, volume); }
+    }
     /* 
      * Will add functionality to return matched trades
      */
-    void addOrder(OrderType orderType, OrderId orderId, Side side, Price price, Size volume)
+    std::vector<Trade> addOrder(OrderType orderType, OrderId orderId, Side side, Price price, Size volume)
     {
         // deal with FOK immediately without adding to book
         if (orderType == OrderType::FillOrKill)
@@ -24,10 +36,11 @@ public:
             if (canFullyFill(side, price, volume))
             {
                 // match and return trades
+                return match(orderId, side, price, volume);
             }
             else
             {
-                return;
+                return {};
             }
         }
 
@@ -38,7 +51,7 @@ public:
              
             // remaining will not be added to book
 
-            return;
+            return match(orderId, side, price, volume);
         }
 
         // for GFD and GTC, match as much as possible
@@ -66,11 +79,6 @@ public:
 
     }
 
-    bool canFullyFill(Side side, Price price, Size volume)
-    {
-        if (side == Side::Buy) { return askLevels_.hasEnough(price, volume); }
-        else { return bidLevels_.hasEnough(price, volume); }
-    }
 
 private:
     LevelPolicy<std::greater<Price>, OrderContainer> bidLevels_;

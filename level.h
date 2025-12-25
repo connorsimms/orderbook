@@ -7,7 +7,15 @@
 
 #include "types.h"
 #include "order.h"
+#include "trade.h"
 
+/**
+ * @brief Represents orders at a given price level.
+ *
+ * Orders are stored as shared pointers, following Price-time priority
+ *
+ * @tparam OrderContainer   the type of container storing Order pointers 
+ */
 template <typename OrderContainer>
 struct Level {
     Price price_;
@@ -21,11 +29,18 @@ struct Level {
     {}
 };
 
+/**
+ * @brief Orderbook price levels are stored in a map
+ *
+ * @tparam Compare  the comparator used to order the map
+ * @tparam OrderContainer   the type of container storing Order pointers
+ */
 template <typename Compare, typename OrderContainer>
 struct MapPolicy {
     std::map<Price, Level<OrderContainer>, Compare> levels_;
 
-    bool hasEnough(Price price, Size volumeNeeded) {
+    bool hasEnough(Price price, Size volumeNeeded) 
+    {
         Compare comp;
         for (auto it = begin(levels_); it != end(levels_); ++it)
         {
@@ -44,8 +59,46 @@ struct MapPolicy {
         it->second.size_ += order->getRemainingSize();
         it->second.orders_.emplace_back(std::move(order));
     }
+
+    std::vector<Trade> match(OrderId orderId, Side side, Price price, Size volumeRemaining)
+    {
+        Compare comp;
+        std::vector<Trade> matches;
+
+        for (auto lvl = begin(levels_); lvl != end(levels_) && volumeRemaining > 0; )
+        {
+            if (price != MARKET_PRICE && comp(price, lvl->first)) break;  
+
+            auto& orders = lvl->second.orders_;
+
+            while (!orders.empty() && volumeRemaining > 0)
+            {
+                auto& resting = orders.front();
+                Size tradeSize = std::min(volumeRemaining, resting->getSize());
+
+                TradeData incomingData{ orderId, lvl->first, tradeSize };
+                TradeData restingData{ resting->getOrderId(), lvl->first, tradeSize };
+
+                if (side == Side::Buy) { matches.emplace_back(incomingData, restingData); }
+                else { matches.emplace_back(restingData, incomingData); }
+
+                volumeRemaining -= tradeSize;
+                lvl->size_ -= tradeSize;
+                resting->fill(tradeSize);
+
+                if (resting->isFilled()) { }
+                else { }
+            }
+        }
+    }
 };
 
+/**
+ * @brief Orderbook price levels are stored in a vector
+ *
+ * @tparam Compare  the comparator used to order the vector
+ * @tparam OrderContainer   the type of container storing Order pointers
+ */
 template <typename Compare, typename OrderContainer>
 struct VectorPolicy {
     std::vector<Level<OrderContainer>> levels_;

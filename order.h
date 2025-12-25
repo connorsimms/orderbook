@@ -22,6 +22,10 @@ public:
     Size getRemainingSize() const { return remaining_; }
     Size filledAmount() const { return volume_ - remaining_; }
 
+    bool isFilled() { return remaining_ == 0; }
+
+    void fill(Size size) { remaining_ -= size; }
+
 private:
     OrderType orderType_;
     OrderId orderId_;
