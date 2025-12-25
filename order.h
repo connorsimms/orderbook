@@ -20,7 +20,7 @@ public:
     Price getPrice() const { return price_; }
     Size getInitialSize() const { return volume_; }
     Size getRemainingSize() const { return remaining_; }
-    Size filledAmount() c onst { return volume_ - remaining_; }
+    Size filledAmount() const { return volume_ - remaining_; }
 
 private:
     OrderType orderType_;
@@ -30,4 +30,5 @@ private:
     Size volume_;
     Size remaining_;
 };
+
 

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include <functional>
+#include <algorithm>
 
 #include "order.h"
 #include "level.h"
@@ -11,9 +12,26 @@ template <template <typename, typename> class LevelPolicy, typename OrderContain
 class OrderBook
 {
 public:
-    void addOrder(Side side, Price price, Size size);
-    void cancelOrder(OrderId orderId);
-    void modifyOrder(OrderId orderId);
+    void addOrder(OrderType orderType, OrderId orderId, Side side, Price price, Size volume)
+    {
+
+    }
+
+    void cancelOrder(OrderId orderId)
+    {
+
+    }
+
+    void modifyOrder(OrderId orderId)
+    {
+
+    }
+
+    bool canFullyFill(Side side, Price price, Size volume)
+    {
+        if (side == Side::Buy) { return askLevels_.hasEnough(price, volume); }
+        else { return bidLevels_.hasEnough(price, volume); }
+    }
 
 private:
     LevelPolicy<std::greater<Price>, OrderContainer> bidLevels_;
