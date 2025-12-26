@@ -17,7 +17,7 @@ public:
     std::vector<Trade> match(OrderId orderId, Side side, Price price, Size& volume)
     {
         if (side == Side::Buy) { return askLevels_.match(orderId, side, price, volume); }
-        else { return bidLevels_.match(price, volume); }
+        else { return bidLevels_.match(orderId, side, price, volume); }
     }
 
     bool canFullyFill(Side side, Price price, Size volume) const
@@ -50,13 +50,15 @@ public:
         if (volume <= 0) { return trades; }
 
         // add remainder to book
+        auto order = std::make_shared<Order>(orderType, orderId, side, price, volume);
+        order_[orderId] = order;
         if (side == Side::Buy)
         {
-            bidLevels_.add(std::make_shared<Order>(orderType, orderId, side, price, volume));
+            bidLevels_.add(order);
         }
         else
         {
-            askLevels_.add(std::make_shared<Order>(orderType, orderId, side, price, volume));
+            askLevels_.add(order);
         }
 
         return trades;

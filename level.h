@@ -4,10 +4,16 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <concepts>
 
 #include "types.h"
 #include "order.h"
 #include "trade.h"
+
+template <typename T>
+concept HasPopFront = requires (T t) {
+    t.pop_front();
+};
 
 /**
  * @brief Represents orders at a given price level.
@@ -53,6 +59,7 @@ struct MapPolicy {
         return false;
     }
 
+    // this currently does not account for All or None orders !!
     bool canMatch(Price price) const
     {
         Compare comp;
@@ -92,10 +99,21 @@ struct MapPolicy {
                 lvl->second.size_ -= tradeSize;
                 resting->fill(tradeSize);
 
-                if (resting->isFilled()) { orders.erase(begin(orders)); }
+                if (resting->isFilled()) {
+                    if constexpr (HasPopFront<OrderContainer>) {
+                        orders.pop_front();
+                    } else {
+                        orders.erase(begin(orders)); 
+                    }
+                }
+            }
+
+            if (orders.empty()) {
+                lvl = levels_.erase(lvl); 
+            } else {
+                ++lvl;
             }
         }
-
         return matches;
     }
 };
