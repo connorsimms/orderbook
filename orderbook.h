@@ -14,13 +14,13 @@ template <template <typename, typename> class LevelPolicy, typename OrderContain
 class OrderBook
 {
 public:
-    std::vector<Trade> match(OrderId orderId, Side side, Price price, Size volume)
+    std::vector<Trade> match(OrderId orderId, Side side, Price price, Size& volume)
     {
         if (side == Side::Buy) { return askLevels_.match(orderId, side, price, volume); }
         else { return bidLevels_.match(price, volume); }
     }
 
-    bool canFullyFill(Side side, Price price, Size volume)
+    bool canFullyFill(Side side, Price price, Size volume) const
     {
         if (side == Side::Buy) { return askLevels_.hasEnough(price, volume); }
         else { return bidLevels_.hasEnough(price, volume); }
@@ -30,43 +30,36 @@ public:
      */
     std::vector<Trade> addOrder(OrderType orderType, OrderId orderId, Side side, Price price, Size volume)
     {
-        // deal with FOK immediately without adding to book
         if (orderType == OrderType::FillOrKill)
         {
-            if (canFullyFill(side, price, volume))
-            {
-                // match and return trades
-                return match(orderId, side, price, volume);
-            }
-            else
+            if (!canFullyFill(side, price, volume))
             {
                 return {};
             }
         }
 
-        // deal with IOC/FAK immediately, Market is similar
+        // Fill as much as possible
+        std::vector<Trade> trades = match(orderId, side, price, volume);
+
+        // remaining will not be added to book
         if (orderType == OrderType::FillAndKill || orderType == OrderType::Market)
         {
-            // Fill as much as possible
-             
-            // remaining will not be added to book
-
-            return match(orderId, side, price, volume);
+            return trades;
         }
 
-        // for GFD and GTC, match as much as possible
-        // then add remainder to the books
-        auto orderPointer = std::make_shared<Order>(orderType, orderId, side, price, volume);
-        order_[orderId] = orderPointer;
+        if (volume <= 0) { return trades; }
 
+        // add remainder to book
         if (side == Side::Buy)
         {
-            bidLevels_.add(orderPointer);
+            bidLevels_.add(std::make_shared<Order>(orderType, orderId, side, price, volume));
         }
         else
         {
-            askLevels_.add(orderPointer);
+            askLevels_.add(std::make_shared<Order>(orderType, orderId, side, price, volume));
         }
+
+        return trades;
     }
 
     void cancelOrder(OrderId orderId)
