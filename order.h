@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "types.h"
 
 class Order 
@@ -24,7 +26,7 @@ public:
 
     bool isFilled() const { return remaining_ == 0; }
 
-    void fill(Size size) { remaining_ -= size; }
+    void fill(const Size& size) { remaining_ -= size; }
 
 private:
     OrderType orderType_;
@@ -35,4 +37,5 @@ private:
     Size remaining_;
 };
 
+using OrderPointer = std::shared_ptr<Order>;
 

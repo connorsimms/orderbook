@@ -25,3 +25,5 @@ private:
     TradeData bid_;
     TradeData ask_;
 };
+
+using Trades = std::vector<Trade>;
