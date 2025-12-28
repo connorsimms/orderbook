@@ -38,8 +38,8 @@ public:
      */
     bool canFullyFill(const Side& side, const Price& price, const Size& volume) const
     {
-        if (side == Side::Buy) { return askLevels_.canFill(price, volume); }
-        else { return bidLevels_.canFill(price, volume); }
+        if (side == Side::Buy) { return askLevels_.canFullyFill(price, volume); }
+        else { return bidLevels_.canFullyFill(price, volume); }
     }
 
     /*

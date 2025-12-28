@@ -35,22 +35,19 @@ public:
      *          orders that may not be matchable to aggressor.
      *          AllOrNone orders that are too big are skipped.
      */
-    bool canFill(Price const& aggressorPrice, Size volumeNeeded) const
+    bool canFullyFill(Price const& aggressorPrice, Size volumeNeeded) const
     {
         for (const auto& [restingPrice, level]: levels_)
         {
             if (comp_(aggressorPrice, restingPrice)) break;
 
             auto& [_, levelSize, orders] = level;
-            for (auto ord = orders.cbegin(); ord != orders.cend() && volumeNeeded > 0; )
+            for (const auto& resting: orders)
             {
-                auto resting = *ord;
-
                 if (resting->getOrderType() == OrderType::AllOrNone)
                 {
                     if (resting->getRemainingSize() > volumeNeeded)
                     {
-                        ++ord;
                         continue;
                     }
                 }
@@ -62,6 +59,9 @@ public:
         return false;
     }
 
+    /**
+     * @brief Matches aggressing order against as many resting orders as possible
+     */
     Trades match(OrderType const& orderType, OrderId const& orderId, Side const& side, Price const& price, Size& volumeRemaining, const auto& onRemove)
     {
         Trades matches;
@@ -129,14 +129,14 @@ public:
         auto [it, inserted] = levels_.try_emplace(order->getPrice(), order->getPrice());
         auto& [price, level] = *it;
         level.size_ += order->getRemainingSize();
-        level.orders_.add(order);
+        level.orders_.insert(order);
     }
 
     void cancel(OrderPointer order)
     {
         if (!levels_.contains(order->getPrice())) return;
 
-        levels_[order->getPrice()].orders_.cancel(order);
+        levels_[order->getPrice()].orders_.erase(order);
     }
 
 private:
@@ -195,7 +195,8 @@ private:
 };
 
 template <typename Compare, typename OrderContainer>
-class ListLevelPolicy {
+class ListLevelPolicy 
+{
 public:
     ListLevelPolicy()
     : levels_{}
@@ -204,6 +205,7 @@ public:
 
     bool hasEnough (Price const& price, Size const& volumeNeeded) const
     {
+        return false;
     }
 
     void add(OrderPointer order)
@@ -229,7 +231,10 @@ public:
         }
     }
 
-    void cancel (OrderPointer order);
+    void cancel (OrderPointer order)
+    {
+
+    }
 
 private:
     std::list<PriceLevel<OrderContainer>> levels_;

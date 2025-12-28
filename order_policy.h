@@ -2,6 +2,7 @@
 #include <iterator>
 #include <list>
 #include <vector>
+#include <unordered_map>
 
 #include "types.h"
 #include "order.h"
@@ -11,22 +12,46 @@ struct ListOrderPolicy
     using OrderContainer = std::list<OrderPointer>;
 
     OrderContainer orders_;
+    std::unordered_map<OrderId, OrderContainer::iterator> orderPosition_;
 
-    void add(OrderPointer order);
+    void insert(OrderPointer order)
+    {
+        orders_.push_back(order);
+    }
 
-    void cancel(OrderPointer order);
+    OrderContainer::iterator erase(OrderContainer::iterator it)
+    {
+        auto order = *it;
+        auto next = orders_.erase(it);
+        orderPosition_.erase(order->getOrderId());
+        return next;
+    }
 
-    OrderPointer front();
+    OrderContainer::iterator erase(OrderPointer order)
+    {
+        orderPosition_.erase(order->getOrderId());
+        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    }
 
-    bool empty();
+    OrderPointer front()
+    {
+        return orders_.front();
+    }
 
-    OrderContainer::iterator begin();
-    OrderContainer::iterator end();
+    bool empty()
+    {
+        return orders_.empty();
+    }
 
-    OrderContainer::const_iterator cbegin();
-    OrderContainer::const_iterator cend();
+    OrderContainer::iterator begin()
+    {
+        return orders_.begin();
+    }
 
-    OrderContainer::iterator erase(OrderContainer::iterator);
+    OrderContainer::iterator end()
+    {
+        return orders_.end();
+    }
 };
 
 struct DequeOrderPolicy
@@ -35,21 +60,40 @@ struct DequeOrderPolicy
 
     OrderContainer orders_;
 
-    void add(OrderPointer order);
+    void insert(OrderPointer order)
+    {
+        return orders_.push_back(order);
+    }
 
-    void cancel(OrderPointer order);
+    OrderContainer::iterator erase(OrderContainer::iterator it)
+    {
+        return orders_.erase(it);
+    }
 
-    OrderPointer front();
+    OrderContainer::iterator erase(OrderPointer order)
+    {
+        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    }
 
-    bool empty();
+    OrderPointer front()
+    {
+        return orders_.front();
+    }
 
-    OrderContainer::iterator begin();
-    OrderContainer::iterator end();
+    bool empty()
+    {
+        return orders_.empty();
+    }
 
-    OrderContainer::const_iterator cbegin();
-    OrderContainer::const_iterator cend();
+    OrderContainer::iterator begin()
+    {
+        return orders_.begin();
+    }
 
-    OrderContainer::iterator erase(OrderContainer::iterator);
+    OrderContainer::iterator end()
+    {
+        return orders_.end();
+    }
 };
 
 struct VectorOrderPolicy
@@ -58,19 +102,38 @@ struct VectorOrderPolicy
     
     OrderContainer orders_;
 
-    void add(OrderPointer order);
+    void insert(OrderPointer order)
+    {
+        orders_.push_back(order);
+    }
 
-    void cancel(OrderPointer order);
+    OrderContainer::iterator erase(OrderContainer::iterator it)
+    {
+        return orders_.erase(it);
+    }
 
-    OrderPointer front();
+    OrderContainer::iterator erase(OrderPointer order)
+    {
+        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    }
 
-    bool empty();
+    OrderPointer front()
+    {
+        return orders_.front();
+    }
 
-    OrderContainer::iterator begin();
-    OrderContainer::iterator end();
+    bool empty()
+    {
+        return orders_.empty();
+    }
 
-    OrderContainer::const_iterator cbegin();
-    OrderContainer::const_iterator cend();
+    OrderContainer::iterator begin()
+    {
+        return orders_.begin();
+    }
 
-    OrderContainer::iterator erase(OrderContainer::iterator);
+    OrderContainer::iterator end()
+    {
+        return orders_.end();
+    }
 };
