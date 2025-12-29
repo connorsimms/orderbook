@@ -104,6 +104,16 @@ struct DequeOrderPolicy
     {
         return orders_.end();
     }
+
+    OrderContainer::const_iterator begin() const
+    {
+        return orders_.begin();
+    }
+
+    OrderContainer::const_iterator end() const
+    {
+        return orders_.end();
+    }
 };
 
 struct VectorOrderPolicy
@@ -143,6 +153,16 @@ struct VectorOrderPolicy
     }
 
     OrderContainer::iterator end()
+    {
+        return orders_.end();
+    }
+
+    OrderContainer::const_iterator begin() const
+    {
+        return orders_.begin();
+    }
+
+    OrderContainer::const_iterator end() const
     {
         return orders_.end();
     }

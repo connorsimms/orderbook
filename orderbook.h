@@ -24,6 +24,11 @@ public:
     , existingOrders_{}
     {}
 
+    bool empty() const 
+    { 
+        return bidLevels_.empty() && askLevels_.empty() && existingOrders_.empty();
+    }
+
     /**
      * @brief Matches aggressing order against resting orders
      */

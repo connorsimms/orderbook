@@ -28,6 +28,10 @@ public:
     , comp_{}
     {}
 
+    bool empty() const
+    {
+        return levels_.empty();
+    }
     /**
      * @brief Checks if aggressing order can be completely filled
      *
