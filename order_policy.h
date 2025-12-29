@@ -33,12 +33,12 @@ struct ListOrderPolicy
         return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
     }
 
-    OrderPointer front()
+    OrderPointer front() const
     {
         return orders_.front();
     }
 
-    bool empty()
+    bool empty() const
     {
         return orders_.empty();
     }
@@ -49,6 +49,16 @@ struct ListOrderPolicy
     }
 
     OrderContainer::iterator end()
+    {
+        return orders_.end();
+    }
+
+    OrderContainer::const_iterator begin() const
+    {
+        return orders_.begin();
+    }
+
+    OrderContainer::const_iterator end() const
     {
         return orders_.end();
     }

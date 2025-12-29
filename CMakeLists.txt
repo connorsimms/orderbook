@@ -14,9 +14,10 @@ FetchContent_Declare(
 enable_testing()
 
 add_executable( orderbook_test
-  orderbook_test.cc
+  orderbook_test.cpp
 )
 
+find_package(GTest REQUIRED)
 target_link_libraries( orderbook_test
   GTest::gtest_main
 )

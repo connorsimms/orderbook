@@ -62,7 +62,7 @@ public:
     /**
      * @brief Matches aggressing order against as many resting orders as possible
      */
-    Trades match(OrderType const& orderType, OrderId const& orderId, Side const& side, Price const& price, Size& volumeRemaining, const auto& onRemove)
+    Trades match(OrderId const& orderId, Side const& side, Price const& price, Size& volumeRemaining, const auto& onRemove)
     {
         Trades matches;
 

@@ -27,10 +27,10 @@ public:
     /**
      * @brief Matches aggressing order against resting orders
      */
-    Trades match(OrderType const& orderType, OrderId const& orderId, Side const& side, Price const& price, Size& volume, auto const& onRemove)
+    Trades match(OrderId const& orderId, Side const& side, Price const& price, Size& volume, auto const& onRemove)
     {
-        if (side == Side::Buy) { return askLevels_.match(orderType, orderId, side, price, volume, onRemove); }
-        else { return bidLevels_.match(orderType, orderId, side, price, volume, onRemove); }
+        if (side == Side::Buy) { return askLevels_.match(orderId, side, price, volume, onRemove); }
+        else { return bidLevels_.match(orderId, side, price, volume, onRemove); }
     }
 
     /**
