@@ -124,6 +124,9 @@ public:
         return matches;
     }
 
+    /**
+     * @brief Adds order to price level
+     */
     void add(OrderPointer order)
     {
         auto [it, inserted] = levels_.try_emplace(order->getPrice(), order->getPrice());
@@ -132,6 +135,9 @@ public:
         level.orders_.insert(order);
     }
 
+    /**
+     * @brief Cancels order in price level
+     */
     void cancel(OrderPointer order)
     {
         if (!levels_.contains(order->getPrice())) return;
@@ -240,4 +246,3 @@ private:
     std::list<PriceLevel<OrderContainer>> levels_;
     Compare comp_;
 };
-
