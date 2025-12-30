@@ -17,7 +17,6 @@ struct PriceLevel
     , orders_{}
     {}
 
-    // maybe std::move version too
     PriceLevel (Price const& price, Size const& size, OrderContainer orders)
     : price_{ price }
     , size_{ size }
