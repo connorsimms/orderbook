@@ -127,9 +127,12 @@ public:
                 }
             }
 
-            if (orders.empty()) {
+            if (orders.empty()) 
+            {
                 lvl = levels_.erase(lvl); 
-            } else {
+            } 
+            else 
+            {
                 ++lvl;
             }
         }
@@ -152,9 +155,15 @@ public:
      */
     void cancel(OrderPointer order)
     {
-        if (!levels_.contains(order->getPrice())) return;
+        auto it = levels_.find(order->getPrice());
+        if (it == levels_.end()) return;
 
-        levels_[order->getPrice()].orders_.erase(order);
+        it->second.orders_.erase(order);
+
+        if (it->second.orders_.empty())
+        {
+            levels_.erase(it);
+        }
     }
 
 private:
@@ -265,9 +274,12 @@ public:
                 }
             }
 
-            if (orders.empty()) {
+            if (orders.empty()) 
+            {
                 level = std::make_reverse_iterator(levels_.erase(std::next(level).base())); 
-            } else {
+            } 
+            else 
+            {
                 ++level;
             }
         }
@@ -292,7 +304,7 @@ public:
         } 
         else 
         {
-            auto lvl = levels_.emplace(it.base(), orderPrice, order->getRemainingSize(), OrderContainer{});
+            auto lvl = levels_.emplace(it.base(), orderPrice);
             lvl->orders_.insert(order);
         }
     }
@@ -312,6 +324,11 @@ public:
         {
             lvl->size_ -= order->getRemainingSize();
             lvl->orders_.erase(order);
+
+            if (lvl->orders_.empty())
+            {
+                levels_.erase(lvl);
+            }
         }
     }
 
@@ -418,9 +435,12 @@ public:
                 }
             }
 
-            if (orders.empty()) {
+            if (orders.empty()) 
+            {
                 level = levels_.erase(level); 
-            } else {
+            } 
+            else 
+            {
                 ++level;
             }
         }
@@ -445,7 +465,7 @@ public:
         } 
         else 
         {
-            it = levels_.emplace(it, orderPrice, order->getRemainingSize(), OrderContainer{});
+            it = levels_.emplace(it, orderPrice);
             it->orders_.insert(order);
         }
     }
@@ -465,6 +485,11 @@ public:
         {
             it->size_ -= order->getRemainingSize();
             it->orders_.erase(order);
+
+            if (it->orders_.empty())
+            {
+                levels_.erase(it);
+            }
         } 
     }
 

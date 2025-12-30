@@ -16,10 +16,4 @@ struct PriceLevel
     , size_{}
     , orders_{}
     {}
-
-    PriceLevel (Price const& price, Size const& size, OrderContainer orders)
-    : price_{ price }
-    , size_{ size }
-    , orders_{ std::move(orders) }
-    {}
 };

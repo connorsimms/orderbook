@@ -27,19 +27,6 @@ protected:
 TYPED_TEST_SUITE(OrderBookTest, OrderBookPolicies);
 
 // MKT, FOK, FAK, GTC, GFD, AON
-TYPED_TEST(OrderBookTest, AddToEmptyBook) 
-{
-    auto mkt_trades = this->orderbook_.addOrder(OrderType::Market, OrderId{1}, Side::Buy, Price{1}, Size{1});
-    EXPECT_TRUE(mkt_trades.empty()) << "Market order returned none-empty trades";
-    
-    auto fok_trades = this->orderbook_.addOrder(OrderType::FillOrKill, OrderId{1}, Side::Buy, Price{1}, Size{1});
-    EXPECT_TRUE(fok_trades.empty()) << "FOK order returned none-empty trades";
-
-    auto fak_trades = this->orderbook_.addOrder(OrderType::FillAndKill, OrderId{1}, Side::Buy, Price{1}, Size{1});
-    EXPECT_TRUE(fak_trades.empty()) << "FAK order returned none-empty trades";
-
-    EXPECT_TRUE(this->orderbook_.empty()) << "Orderbook is not empty";
-}
 
 TYPED_TEST(OrderBookTest, GTCMatchingAndPartialFills) 
 {
@@ -93,6 +80,113 @@ TYPED_TEST(OrderBookTest, TimePriority)
 
     ASSERT_EQ(trades.size(), 1);
     EXPECT_EQ(trades[0].getBid().orderId_, 1);
+}
+
+TYPED_TEST(OrderBookTest, MarketOrderLogic) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell, Price{100}, Size{10});
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{2}, Side::Sell, Price{101}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::Market, OrderId{3}, Side::Buy, Price{MARKET_PRICE}, Size{15});
+
+    ASSERT_EQ(trades.size(), 2);
+    EXPECT_EQ(trades[0].getAsk().price_, 100);
+    EXPECT_EQ(trades[0].getBid().size_, 10);
+    
+    EXPECT_EQ(trades[1].getAsk().price_, 101);
+    EXPECT_EQ(trades[1].getBid().size_, 5);
+
+    EXPECT_FALSE(this->orderbook_.empty());
+}
+
+TYPED_TEST(OrderBookTest, MarketOrderNoLiquidity) 
+{
+    auto trades = this->orderbook_.addOrder(OrderType::Market, OrderId{1}, Side::Buy, Price{MARKET_PRICE}, Size{10});
+    EXPECT_TRUE(trades.empty());
+    EXPECT_TRUE(this->orderbook_.empty());
+}
+
+TYPED_TEST(OrderBookTest, FOKSuccess) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell, Price{100}, Size{10});
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{2}, Side::Sell, Price{101}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::FillOrKill, OrderId{3}, Side::Buy, Price{101}, Size{20});
+
+    EXPECT_EQ(trades.size(), 2);
+    EXPECT_TRUE(this->orderbook_.empty());
+}
+
+TYPED_TEST(OrderBookTest, FOKNotEnoughVolume) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell, Price{100}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::FillOrKill, OrderId{3}, Side::Buy, Price{100}, Size{20});
+
+    EXPECT_TRUE(trades.empty());
+    EXPECT_FALSE(this->orderbook_.empty());
+}
+
+TYPED_TEST(OrderBookTest, FOKPriceTooHigh) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell, Price{100}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::FillOrKill, OrderId{3}, Side::Buy, Price{99}, Size{10});
+
+    EXPECT_TRUE(trades.empty());
+    EXPECT_FALSE(this->orderbook_.empty());
+}
+
+TYPED_TEST(OrderBookTest, FAK) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell, Price{100}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::FillAndKill, OrderId{2}, Side::Buy, Price{100}, Size{20});
+
+    ASSERT_EQ(trades.size(), 1);
+    EXPECT_EQ(trades[0].getBid().size_, 10);
+    EXPECT_TRUE(this->orderbook_.empty()); 
+}
+
+TYPED_TEST(OrderBookTest, AONRestingLogic) 
+{
+    this->orderbook_.addOrder(OrderType::AllOrNone, OrderId{1}, Side::Sell, Price{100}, Size{20});
+    
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{2}, Side::Sell, Price{100}, Size{10});
+
+    auto trades = this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{3}, Side::Buy, Price{100}, Size{15});
+
+    ASSERT_EQ(trades.size(), 1);
+    EXPECT_EQ(trades[0].getAsk().orderId_, 2); 
+    EXPECT_EQ(trades[0].getBid().size_, 10);   
+    
+    auto trades2 = this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{4}, Side::Buy, Price{100}, Size{20});
+    ASSERT_EQ(trades2.size(), 1);
+    EXPECT_EQ(trades2[0].getAsk().orderId_, 1); 
+}
+
+TYPED_TEST(OrderBookTest, CancelOrder) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Buy, Price{100}, Size{10});
+    EXPECT_FALSE(this->orderbook_.empty());
+
+    this->orderbook_.cancelOrder(OrderId{1});
+    EXPECT_TRUE(this->orderbook_.empty());
+
+    this->orderbook_.cancelOrder(OrderId{99}); 
+}
+
+TYPED_TEST(OrderBookTest, ModifyOrder) 
+{
+    this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Buy, Price{100}, Size{10});
+
+    auto trades = this->orderbook_.modifyOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Buy, Price{102}, Size{20});
+
+    auto trades2 = this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{2}, Side::Sell, Price{102}, Size{20});
+    
+    ASSERT_EQ(trades2.size(), 1);
+    EXPECT_EQ(trades2[0].getBid().orderId_, 1);
+    EXPECT_EQ(trades2[0].getBid().size_, 20);
 }
 
 int main(int argc, char **argv) {

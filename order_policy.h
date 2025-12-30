@@ -14,6 +14,11 @@ struct ListOrderPolicy
     OrderContainer orders_;
     std::unordered_map<OrderId, OrderContainer::iterator> orderPosition_;
 
+    ListOrderPolicy()
+    : orders_{}
+    , orderPosition_{}
+    {}
+
     void insert(OrderPointer order)
     {
         orders_.push_back(order);
@@ -70,6 +75,10 @@ struct DequeOrderPolicy
 
     OrderContainer orders_;
 
+    DequeOrderPolicy()
+    : orders_{}
+    {}
+
     void insert(OrderPointer order)
     {
         return orders_.push_back(order);
@@ -121,6 +130,10 @@ struct VectorOrderPolicy
     using OrderContainer = std::vector<OrderPointer>;
     
     OrderContainer orders_;
+
+    VectorOrderPolicy()
+    : orders_{}
+    {}
 
     void insert(OrderPointer order)
     {
