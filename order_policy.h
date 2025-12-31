@@ -16,7 +16,10 @@ struct ListOrderPolicy
 
   ListOrderPolicy() : orders_{}, orderPosition_{} {}
 
-  void insert(OrderPointer order) { orders_.push_back(order); }
+  void insert(OrderPointer order)
+  {
+    orderPosition_[order->getOrderId()] = orders_.insert(orders_.end(), order);
+  }
 
   OrderContainer::iterator erase(OrderContainer::iterator it)
   {
@@ -28,8 +31,9 @@ struct ListOrderPolicy
 
   OrderContainer::iterator erase(OrderPointer order)
   {
+    auto next = orders_.erase(orderPosition_[order->getOrderId()]);
     orderPosition_.erase(order->getOrderId());
-    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    return next;
   }
 
   OrderPointer front() const { return orders_.front(); }
@@ -62,7 +66,8 @@ struct DequeOrderPolicy
 
   OrderContainer::iterator erase(OrderPointer order)
   {
-    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order),
+                         orders_.end());
   }
 
   OrderPointer front() { return orders_.front(); }
@@ -95,7 +100,8 @@ struct VectorOrderPolicy
 
   OrderContainer::iterator erase(OrderPointer order)
   {
-    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order),
+                         orders_.end());
   }
 
   OrderPointer front() { return orders_.front(); }

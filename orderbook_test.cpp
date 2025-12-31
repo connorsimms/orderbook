@@ -229,6 +229,16 @@ TYPED_TEST(OrderBookTest, BidsAndAsksAreSeparate)
   EXPECT_TRUE(trades.empty());
 }
 
+TYPED_TEST(OrderBookTest, ListPolicyCancel)
+{
+  this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Buy,
+                            Price{100}, Size{10});
+
+  this->orderbook_.cancelOrder(OrderId{1});
+
+  EXPECT_TRUE(this->orderbook_.empty());
+}
+
 int main(int argc, char **argv)
 {
   testing::InitGoogleTest(&argc, argv);

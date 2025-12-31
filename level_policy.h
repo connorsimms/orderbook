@@ -4,6 +4,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
@@ -21,7 +22,6 @@
 template <typename Compare, typename OrderContainer> class MapLevelPolicy
 {
 public:
-  // unsure if this is necessary
   MapLevelPolicy() : levels_{}, comp_{} {}
 
   bool empty() const { return levels_.empty(); }
@@ -30,6 +30,7 @@ public:
   {
     if (empty())
     {
+      throw std::runtime_error("Level is empty");
     }
     else
     {
@@ -190,6 +191,7 @@ public:
   {
     if (empty())
     {
+      throw std::runtime_error("Level is empty");
     }
     else
     {
@@ -349,10 +351,11 @@ public:
   {
     if (empty())
     {
+      throw std::runtime_error("Level is empty");
     }
     else
     {
-      return levels_.back().price_;
+      return levels_.front().price_;
     }
   }
 
