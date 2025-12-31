@@ -1,182 +1,112 @@
 #include <deque>
 #include <iterator>
 #include <list>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "types.h"
 #include "order.h"
+#include "types.h"
 
 struct ListOrderPolicy
 {
-    using OrderContainer = std::list<OrderPointer>;
+  using OrderContainer = std::list<OrderPointer>;
 
-    OrderContainer orders_;
-    std::unordered_map<OrderId, OrderContainer::iterator> orderPosition_;
+  OrderContainer orders_;
+  std::unordered_map<OrderId, OrderContainer::iterator> orderPosition_;
 
-    ListOrderPolicy()
-    : orders_{}
-    , orderPosition_{}
-    {}
+  ListOrderPolicy() : orders_{}, orderPosition_{} {}
 
-    void insert(OrderPointer order)
-    {
-        orders_.push_back(order);
-    }
+  void insert(OrderPointer order) { orders_.push_back(order); }
 
-    OrderContainer::iterator erase(OrderContainer::iterator it)
-    {
-        auto order = *it;
-        auto next = orders_.erase(it);
-        orderPosition_.erase(order->getOrderId());
-        return next;
-    }
+  OrderContainer::iterator erase(OrderContainer::iterator it)
+  {
+    auto order = *it;
+    auto next = orders_.erase(it);
+    orderPosition_.erase(order->getOrderId());
+    return next;
+  }
 
-    OrderContainer::iterator erase(OrderPointer order)
-    {
-        orderPosition_.erase(order->getOrderId());
-        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
-    }
+  OrderContainer::iterator erase(OrderPointer order)
+  {
+    orderPosition_.erase(order->getOrderId());
+    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+  }
 
-    OrderPointer front() const
-    {
-        return orders_.front();
-    }
+  OrderPointer front() const { return orders_.front(); }
 
-    bool empty() const
-    {
-        return orders_.empty();
-    }
+  bool empty() const { return orders_.empty(); }
 
-    OrderContainer::iterator begin()
-    {
-        return orders_.begin();
-    }
+  OrderContainer::iterator begin() { return orders_.begin(); }
 
-    OrderContainer::iterator end()
-    {
-        return orders_.end();
-    }
+  OrderContainer::iterator end() { return orders_.end(); }
 
-    OrderContainer::const_iterator begin() const
-    {
-        return orders_.begin();
-    }
+  OrderContainer::const_iterator begin() const { return orders_.begin(); }
 
-    OrderContainer::const_iterator end() const
-    {
-        return orders_.end();
-    }
+  OrderContainer::const_iterator end() const { return orders_.end(); }
 };
 
 struct DequeOrderPolicy
 {
-    using OrderContainer = std::deque<OrderPointer>;
+  using OrderContainer = std::deque<OrderPointer>;
 
-    OrderContainer orders_;
+  OrderContainer orders_;
 
-    DequeOrderPolicy()
-    : orders_{}
-    {}
+  DequeOrderPolicy() : orders_{} {}
 
-    void insert(OrderPointer order)
-    {
-        return orders_.push_back(order);
-    }
+  void insert(OrderPointer order) { return orders_.push_back(order); }
 
-    OrderContainer::iterator erase(OrderContainer::iterator it)
-    {
-        return orders_.erase(it);
-    }
+  OrderContainer::iterator erase(OrderContainer::iterator it)
+  {
+    return orders_.erase(it);
+  }
 
-    OrderContainer::iterator erase(OrderPointer order)
-    {
-        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
-    }
+  OrderContainer::iterator erase(OrderPointer order)
+  {
+    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+  }
 
-    OrderPointer front()
-    {
-        return orders_.front();
-    }
+  OrderPointer front() { return orders_.front(); }
 
-    bool empty()
-    {
-        return orders_.empty();
-    }
+  bool empty() { return orders_.empty(); }
 
-    OrderContainer::iterator begin()
-    {
-        return orders_.begin();
-    }
+  OrderContainer::iterator begin() { return orders_.begin(); }
 
-    OrderContainer::iterator end()
-    {
-        return orders_.end();
-    }
+  OrderContainer::iterator end() { return orders_.end(); }
 
-    OrderContainer::const_iterator begin() const
-    {
-        return orders_.begin();
-    }
+  OrderContainer::const_iterator begin() const { return orders_.begin(); }
 
-    OrderContainer::const_iterator end() const
-    {
-        return orders_.end();
-    }
+  OrderContainer::const_iterator end() const { return orders_.end(); }
 };
 
 struct VectorOrderPolicy
 {
-    using OrderContainer = std::vector<OrderPointer>;
-    
-    OrderContainer orders_;
+  using OrderContainer = std::vector<OrderPointer>;
 
-    VectorOrderPolicy()
-    : orders_{}
-    {}
+  OrderContainer orders_;
 
-    void insert(OrderPointer order)
-    {
-        orders_.push_back(order);
-    }
+  VectorOrderPolicy() : orders_{} {}
 
-    OrderContainer::iterator erase(OrderContainer::iterator it)
-    {
-        return orders_.erase(it);
-    }
+  void insert(OrderPointer order) { orders_.push_back(order); }
 
-    OrderContainer::iterator erase(OrderPointer order)
-    {
-        return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
-    }
+  OrderContainer::iterator erase(OrderContainer::iterator it)
+  {
+    return orders_.erase(it);
+  }
 
-    OrderPointer front()
-    {
-        return orders_.front();
-    }
+  OrderContainer::iterator erase(OrderPointer order)
+  {
+    return orders_.erase(std::remove(orders_.begin(), orders_.end(), order));
+  }
 
-    bool empty()
-    {
-        return orders_.empty();
-    }
+  OrderPointer front() { return orders_.front(); }
 
-    OrderContainer::iterator begin()
-    {
-        return orders_.begin();
-    }
+  bool empty() { return orders_.empty(); }
 
-    OrderContainer::iterator end()
-    {
-        return orders_.end();
-    }
+  OrderContainer::iterator begin() { return orders_.begin(); }
 
-    OrderContainer::const_iterator begin() const
-    {
-        return orders_.begin();
-    }
+  OrderContainer::iterator end() { return orders_.end(); }
 
-    OrderContainer::const_iterator end() const
-    {
-        return orders_.end();
-    }
+  OrderContainer::const_iterator begin() const { return orders_.begin(); }
+
+  OrderContainer::const_iterator end() const { return orders_.end(); }
 };
