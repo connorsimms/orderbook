@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <gtest/gtest.h>
 
 #include "orderbook.h"
@@ -58,7 +59,7 @@ TYPED_TEST(OrderBookTest, PricePriority)
   this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{1}, Side::Sell,
                             Price{101}, Size{10});
   this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{2}, Side::Sell,
-                            Price{100}, Size{10}); // Better price
+                            Price{100}, Size{10});
   this->orderbook_.addOrder(OrderType::GoodTillCancel, OrderId{3}, Side::Sell,
                             Price{102}, Size{10});
 

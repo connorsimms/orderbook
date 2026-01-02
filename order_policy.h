@@ -1,3 +1,5 @@
+#pragma once
+
 #include <deque>
 #include <iterator>
 #include <list>
@@ -36,6 +38,8 @@ struct ListOrderPolicy
     return next;
   }
 
+  auto size() const { return orders_.size(); }
+
   OrderPointer front() const { return orders_.front(); }
 
   bool empty() const { return orders_.empty(); }
@@ -70,6 +74,8 @@ struct DequeOrderPolicy
                          orders_.end());
   }
 
+  auto size() const { return orders_.size(); }
+
   OrderPointer front() { return orders_.front(); }
 
   bool empty() { return orders_.empty(); }
@@ -103,6 +109,8 @@ struct VectorOrderPolicy
     return orders_.erase(std::remove(orders_.begin(), orders_.end(), order),
                          orders_.end());
   }
+
+  auto size() const { return orders_.size(); }
 
   OrderPointer front() { return orders_.front(); }
 

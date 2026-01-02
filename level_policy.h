@@ -162,11 +162,34 @@ public:
       return;
 
     it->second.orders_.erase(order);
+    it->second.size_ -= order->getRemainingSize();
 
     if (it->second.orders_.empty())
     {
       levels_.erase(it);
     }
+  }
+
+  std::map<Price, PriceLevel<OrderContainer>, Compare>::iterator begin()
+  {
+    return levels_.begin();
+  }
+
+  std::map<Price, PriceLevel<OrderContainer>, Compare>::iterator end()
+  {
+    return levels_.end();
+  }
+
+  std::map<Price, PriceLevel<OrderContainer>, Compare>::const_iterator
+  begin() const
+  {
+    return levels_.begin();
+  }
+
+  std::map<Price, PriceLevel<OrderContainer>, Compare>::const_iterator
+  end() const
+  {
+    return levels_.end();
   }
 
 private:
@@ -296,20 +319,21 @@ public:
     Price orderPrice = order->getPrice();
     Compare comp;
 
-    auto it = std::lower_bound(
-        rbegin(levels_), rend(levels_), orderPrice,
+    auto lvl = std::lower_bound(
+        levels_.begin(), levels_.end(), orderPrice,
         [&comp](const PriceLevel<OrderContainer> &level, Price price)
-        { return comp(level.price_, price); });
+        { return comp(price, level.price_); });
 
-    if (it != rend(levels_) && it->price_ == orderPrice)
+    if (lvl != levels_.end() && lvl->price_ == orderPrice)
     {
-      it->size_ += order->getRemainingSize();
-      it->orders_.insert(order);
+      lvl->size_ += order->getRemainingSize();
+      lvl->orders_.insert(order);
     }
     else
     {
-      auto lvl = levels_.emplace(it.base(), orderPrice);
+      lvl = levels_.emplace(lvl, orderPrice);
       lvl->orders_.insert(order);
+      lvl->size_ += order->getRemainingSize();
     }
   }
 
@@ -318,21 +342,40 @@ public:
     Price orderPrice = order->getPrice();
     Compare comp;
 
-    auto lvl = std::lower_bound(
-        begin(levels_), end(levels_), orderPrice,
-        [&comp](const PriceLevel<OrderContainer> &level, Price price)
-        { return comp(level.price_, price); });
+    auto lvl = std::find_if(levels_.begin(), levels_.end(),
+                            [&](const PriceLevel<OrderContainer> &level)
+                            { return orderPrice == level.price_; });
 
-    if (lvl != end(levels_) && lvl->price_ == orderPrice)
+    if (lvl != levels_.end() && lvl->price_ == orderPrice)
     {
-      lvl->size_ -= order->getRemainingSize();
       lvl->orders_.erase(order);
+      lvl->size_ -= order->getRemainingSize();
 
       if (lvl->orders_.empty())
       {
         levels_.erase(lvl);
       }
     }
+  }
+
+  std::vector<PriceLevel<OrderContainer>>::iterator begin()
+  {
+    return levels_.begin();
+  }
+
+  std::vector<PriceLevel<OrderContainer>>::iterator end()
+  {
+    return levels_.end();
+  }
+
+  std::vector<PriceLevel<OrderContainer>>::const_iterator begin() const
+  {
+    return levels_.begin();
+  }
+
+  std::vector<PriceLevel<OrderContainer>>::const_iterator end() const
+  {
+    return levels_.end();
   }
 
 private:
@@ -456,11 +499,11 @@ public:
     Compare comp;
 
     auto it = std::lower_bound(
-        begin(levels_), end(levels_), orderPrice,
+        levels_.begin(), levels_.end(), orderPrice,
         [&comp](const PriceLevel<OrderContainer> &level, Price price)
         { return comp(level.price_, price); });
 
-    if (it != end(levels_) && it->price_ == orderPrice)
+    if (it != levels_.end() && it->price_ == orderPrice)
     {
       it->size_ += order->getRemainingSize();
       it->orders_.insert(order);
@@ -469,6 +512,7 @@ public:
     {
       it = levels_.emplace(it, orderPrice);
       it->orders_.insert(order);
+      it->size_ += order->getRemainingSize();
     }
   }
 
@@ -478,11 +522,11 @@ public:
     Compare comp;
 
     auto it = std::lower_bound(
-        begin(levels_), end(levels_), orderPrice,
+        levels_.begin(), levels_.end(), orderPrice,
         [&comp](const PriceLevel<OrderContainer> &level, Price price)
         { return comp(level.price_, price); });
 
-    if (it != end(levels_) && it->price_ == orderPrice)
+    if (it != levels_.end() && it->price_ == orderPrice)
     {
       it->size_ -= order->getRemainingSize();
       it->orders_.erase(order);
@@ -492,6 +536,26 @@ public:
         levels_.erase(it);
       }
     }
+  }
+
+  std::list<PriceLevel<OrderContainer>>::iterator begin()
+  {
+    return levels_.begin();
+  }
+
+  std::list<PriceLevel<OrderContainer>>::iterator end()
+  {
+    return levels_.end();
+  }
+
+  std::list<PriceLevel<OrderContainer>>::const_iterator begin() const
+  {
+    return levels_.begin();
+  }
+
+  std::list<PriceLevel<OrderContainer>>::const_iterator end() const
+  {
+    return levels_.end();
   }
 
 private:
