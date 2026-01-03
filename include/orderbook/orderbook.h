@@ -5,10 +5,10 @@
 #include <memory>
 #include <unordered_map>
 
-#include "level_policy.h"
-#include "order.h"
-#include "trade.h"
-#include "types.h"
+#include "orderbook/level_policy.h"
+#include "orderbook/order.h"
+#include "orderbook/trade.h"
+#include "orderbook/types.h"
 
 /*
  * @tparam LevelContainer   container used to store PriceLevel%s

@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <gtest/gtest.h>
 
-#include "orderbook.h"
-#include "types.h"
+#include "orderbook/orderbook.h"
+#include "orderbook/types.h"
 
 using OrderBookPolicies =
     ::testing::Types<OrderBook<MapLevelPolicy, DequeOrderPolicy>,

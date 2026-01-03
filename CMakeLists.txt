@@ -1,25 +1,25 @@
 cmake_minimum_required(VERSION 4.2)
+project(orderbook VERSION 0.0.1 LANGUAGES CXX)
 
-project(orderbook)
+enable_testing()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/52eb8108c5bdec04579160ae17225d66034bd723.zip
-)
-enable_testing()
+add_library(orderbook_lib INTERFACE)
 
-add_executable( orderbook_test
-  orderbook_test.cpp
+target_include_directories(orderbook_lib INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+target_compile_options(orderbook_lib INTERFACE -Wall -Wextra -Wpedantic)
+
+add_subdirectory(tests)
+#add_subdirectory(benchmarks)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-
 if(CLANG_TIDY_EXE)
-    set(TIDY_CHECKS "-*,google-*,performance-*,bugprone-*, -readability-magic-numbers, -misc-include-cleaner")
+    set(TIDY_CHECKS "-*,google-*,performance-*,bugprone-*,-readability-magic-numbers,-misc-include-cleaner")
     
     set_target_properties(
         orderbook_test PROPERTIES 
@@ -27,10 +27,3 @@ if(CLANG_TIDY_EXE)
     )
 endif()
 
-find_package(GTest REQUIRED)
-target_link_libraries( orderbook_test
-  GTest::gtest_main
-)
-
-include(GoogleTest)
-gtest_discover_tests(orderbook_test)
