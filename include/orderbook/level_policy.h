@@ -317,12 +317,11 @@ public:
   void add(OrderPointer order)
   {
     Price orderPrice = order->getPrice();
-    Compare comp;
 
     auto lvl = std::lower_bound(
         levels_.begin(), levels_.end(), orderPrice,
-        [&comp](const PriceLevel<OrderContainer> &level, Price price)
-        { return comp(price, level.price_); });
+        [&](const PriceLevel<OrderContainer> &level, Price price)
+        { return comp_(price, level.price_); });
 
     if (lvl != levels_.end() && lvl->price_ == orderPrice)
     {
@@ -340,7 +339,6 @@ public:
   void cancel(OrderPointer order)
   {
     Price orderPrice = order->getPrice();
-    Compare comp;
 
     auto lvl = std::find_if(levels_.begin(), levels_.end(),
                             [&](const PriceLevel<OrderContainer> &level)
@@ -496,12 +494,11 @@ public:
   void add(OrderPointer order)
   {
     Price orderPrice = order->getPrice();
-    Compare comp;
 
     auto it = std::lower_bound(
         levels_.begin(), levels_.end(), orderPrice,
-        [&comp](const PriceLevel<OrderContainer> &level, Price price)
-        { return comp(level.price_, price); });
+        [&](const PriceLevel<OrderContainer> &level, Price price)
+        { return comp_(level.price_, price); });
 
     if (it != levels_.end() && it->price_ == orderPrice)
     {
@@ -519,12 +516,11 @@ public:
   void cancel(OrderPointer order)
   {
     Price orderPrice = order->getPrice();
-    Compare comp;
 
     auto it = std::lower_bound(
         levels_.begin(), levels_.end(), orderPrice,
-        [&comp](const PriceLevel<OrderContainer> &level, Price price)
-        { return comp(level.price_, price); });
+        [&](const PriceLevel<OrderContainer> &level, Price price)
+        { return comp_(level.price_, price); });
 
     if (it != levels_.end() && it->price_ == orderPrice)
     {

@@ -141,7 +141,7 @@ public:
   }
 
 private:
-  std::unordered_map<OrderId, OrderPointer> existingOrders_;
   LevelContainer<std::greater<Price>, OrderContainer> bidLevels_;
   LevelContainer<std::less<Price>, OrderContainer> askLevels_;
+  std::unordered_map<OrderId, OrderPointer> existingOrders_;
 };
