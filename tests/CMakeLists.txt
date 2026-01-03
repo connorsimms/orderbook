@@ -15,6 +15,7 @@ add_executable(
 
 target_link_libraries(orderbook_test PRIVATE
   orderbook_lib
+  GTest::gtest
   GTest::gtest_main
 )
 

@@ -1,8 +1,6 @@
-#include <cstdlib>
 #include <gtest/gtest.h>
 
 #include "orderbook/orderbook.h"
-#include "orderbook/types.h"
 
 using OrderBookPolicies =
     ::testing::Types<OrderBook<MapLevelPolicy, DequeOrderPolicy>,
@@ -17,9 +15,8 @@ using OrderBookPolicies =
 
 template <typename OrderBookPolicy> class OrderBookTest : public testing::Test
 {
-protected:
+public:
   OrderBookPolicy orderbook_;
-  OrderId id_ = 0;
 };
 
 TYPED_TEST_SUITE(OrderBookTest, OrderBookPolicies);
@@ -238,10 +235,4 @@ TYPED_TEST(OrderBookTest, ListPolicyCancel)
   this->orderbook_.cancelOrder(OrderId{1});
 
   EXPECT_TRUE(this->orderbook_.empty());
-}
-
-int main(int argc, char **argv)
-{
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
 }

@@ -15,7 +15,7 @@ target_include_directories(orderbook_lib INTERFACE
 target_compile_options(orderbook_lib INTERFACE -Wall -Wextra -Wpedantic)
 
 add_subdirectory(tests)
-#add_subdirectory(benchmarks)
+add_subdirectory(benchmarks)
 
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 if(CLANG_TIDY_EXE)
